@@ -4,9 +4,8 @@ use crate::{state::CONFIG, ContractError};
 use build_messages::claim_and_headstash_add;
 use cosmwasm_std::{coins, DepsMut,  BankMsg, StdResult, Env, MessageInfo, Response, CosmosMsg, SubMsg};
 use cw_goop::msg::ExecuteMsg as CwGoopContractExecuteMsg;
-use cw_goop::{helpers::interface::CwGoopContract, msg::ExecuteMsg as UpdateMembers};
-use cw_goop::msg::Member;
 use cw_goop::{helpers::interface::CwGoopContract, msg::AddMembersMsg};
+use cw_goop::msg::Member;
 use validation::validate_claim;
 
 pub fn claim_headstash(
@@ -63,6 +62,7 @@ mod build_messages {
         headstash_amount: u128,
     ) -> Result<Response, ContractError> {
         let mut res = Response::new();
+       
         let bank_msg = SubMsg::new(BankMsg::Send {
             to_address: info.sender.to_string(),
             amount: coins(headstash_amount, NATIVE_BOND_DENOM),
@@ -74,6 +74,7 @@ mod build_messages {
             info.sender,
             headstash_goop_address,
         )?);
+
         Ok(res)
     }
 
@@ -83,7 +84,7 @@ mod build_messages {
         headstash_goop_address: String,
     ) -> StdResult<CosmosMsg> {
         let inner_msg = AddMembersMsg {
-            to_add: vec![member_address.to_string()],
+            to_add: vec![member_address],
         };
         let execute_msg = CwGoopContractExecuteMsg::AddMembers(inner_msg);
             CwGoopContract(deps.api.addr_validate(&headstash_goop_address)?)

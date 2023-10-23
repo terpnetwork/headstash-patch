@@ -2,6 +2,7 @@
 name = "headstash-airdrop"
 version = "0.1.0"
 authors = ["terpnetwork contributors <terp.network@skiff.com>"]
+license = "Apache-2.0"
 edition = "2021"
 
 exclude = [
@@ -46,6 +47,7 @@ cosmwasm-std = { version = "1.4.0", features = [
     # Enable this if you only deploy to chains that have CosmWasm 1.4 or higher
     # "cosmwasm_1_4",
 ] }
+cw-goop = "0.1.0"
 cw-storage-plus = "1.1.0"
 cw-utils = "1.0.2"
 cw2 = "1.1.0"

@@ -191,3 +191,4 @@ pub fn query_config(deps: Deps, _env: Env) -> StdResult<ConfigResponse> {
         member_limit: config.member_limit,
     })
 }
+

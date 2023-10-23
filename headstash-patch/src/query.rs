@@ -1,7 +1,7 @@
 use crate::{msg::QueryMsg, state::CONFIG, ContractError};
 use cosmwasm_std::{ Env, Deps, DepsMut, StdResult, entry_point, to_binary, Binary};
-use cw_goop::helpers::CwGoopContract;
-use cw_goop::msg::Member;
+use cw_goop::helpers::interface::CwGoopContract;
+// use cw_goop::msg::Member;
 
 
 
@@ -43,8 +43,8 @@ pub fn query_headstash_goop(deps: &DepsMut) -> Result<String, ContractError> {
 pub fn query_per_address_limit(deps: &Deps) -> StdResult<u32> {
     let config = CONFIG.load(deps.storage)?;
     match config.cw_goop_address {
-        Some(address) => CwGoopContract(address)
-            .per_address_limit(&deps.querier),
+        Some(address) => CwGoopContract(deps.api.addr_validate(&address)?)
+            .member_limit(&deps.querier),
         None => Err(cosmwasm_std::StdError::NotFound {
             kind: "Whitelist Contract".to_string(),
         }),
