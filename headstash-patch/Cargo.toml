@@ -2,6 +2,8 @@
 name = "headstash-airdrop"
 version = "0.1.0"
 authors = ["terpnetwork contributors <terp.network@skiff.com>"]
+description = "Headstash Patch Contract"
+license = "Apache-2.0"
 edition = "2021"
 
 exclude = [
