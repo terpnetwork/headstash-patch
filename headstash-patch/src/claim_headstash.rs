@@ -1,10 +1,12 @@
-use crate::query::query_headstash_group;
+use crate::query::query_headstash_goop;
 use crate::state::ADDRS_CLAIM_COUNT;
 use crate::{state::CONFIG, ContractError};
 use build_messages::claim_and_headstash_add;
-use cosmwasm_std::{coins, DepsMut, Addr, BankMsg, StdResult, Env, MessageInfo, Response, CosmosMsg, SubMsg};
-use cw4_group::msg::ExecuteMsg as Cw4GoopContractExecuteMsg;
-use cw4_group::{helpers::interface::Cw4GoopContract, msg::ExecuteMsg as UpdateMembers};
+use cosmwasm_std::{coins, DepsMut,  BankMsg, StdResult, Env, MessageInfo, Response, CosmosMsg, SubMsg};
+use cw_goop::msg::ExecuteMsg as CwGoopContractExecuteMsg;
+use cw_goop::{helpers::interface::CwGoopContract, msg::ExecuteMsg as UpdateMembers};
+use cw_goop::msg::Member;
+use cw_goop::{helpers::interface::CwGoopContract, msg::AddMembersMsg};
 use validation::validate_claim;
 
 pub fn claim_headstash(
@@ -15,6 +17,8 @@ pub fn claim_headstash(
     eth_sig: String,
 ) -> Result<Response, ContractError> {
     let config = CONFIG.load(deps.storage)?;
+
+
     validate_claim(
         &deps,
         info.clone(),
@@ -22,11 +26,20 @@ pub fn claim_headstash(
         eth_sig,
         config.clone(),
     )?;
-    let res = claim_and_headstash_add(&deps, info, config.headstash_amount)?;
+
+    // Load the Member from storage using the eth_address
+    let member: Member = load_goop_member(deps.storage, &eth_address)?;
+
+    let headstash_amount = member.mint_count;
+
+
+    let res = claim_and_headstash_add(&deps, info, headstash_amount)?;
     increment_local_claim_count_for_address(deps, eth_address)?;
 
-    Ok(res.add_attribute("claimed_amount", config.headstash_amount.to_string()))
+    Ok(res.add_attribute("claimed_amount", headstash_amount.to_string()))
 }
+
+
 
 pub fn increment_local_claim_count_for_address(
     deps: DepsMut,
@@ -42,7 +55,7 @@ pub fn increment_local_claim_count_for_address(
 
 mod build_messages {
     use super::*;
-    use crate::{state::NATIVE_BOND_DENOM, NATIVE_FEE_DENOM};
+    use crate::{state::NATIVE_BOND_DENOM};
 
     pub fn claim_and_headstash_add(
         deps: &DepsMut,
@@ -55,26 +68,25 @@ mod build_messages {
             amount: coins(headstash_amount, NATIVE_BOND_DENOM),
         });
         res = res.add_submessage(bank_msg);
-        let headstash_group = query_headstash_group(deps)?;
-        let res = res.add_message(add_member_to_headstash_group(
+        let headstash_goop_address = query_headstash_goop(deps)?;
+        let res = res.add_message(add_member_to_headstash_goop_address(
             deps,
             info.sender,
-            headstash_group,
+            headstash_goop_address,
         )?);
         Ok(res)
     }
 
-    fn add_member_to_headstash_group(
+    fn add_member_to_headstash_goop_address(
         deps: &DepsMut,
         member_address: Member,
-        headstash_group: String,
+        headstash_goop_address: String,
     ) -> StdResult<CosmosMsg> {
-        let inner_msg = UpdateMembers {
-            remove: null,
-            add: vec![member_address.to_string()],
+        let inner_msg = AddMembersMsg {
+            to_add: vec![member_address.to_string()],
         };
-        let execute_msg = Cw4GoopContractExecuteMsg::AddMembers(inner_msg);
-            Cw4GoopContract(deps.api.addr_validate(&headstash_group)?)
+        let execute_msg = CwGoopContractExecuteMsg::AddMembers(inner_msg);
+            CwGoopContract(deps.api.addr_validate(&headstash_goop_address)?)
             .call(execute_msg)
     }
 }

@@ -1,23 +1,25 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
-use cw4::Member;
+use cw_goop::msg::Member;
+use cosmwasm_std::Addr;
 
 #[cw_serde]
 pub struct InstantiateMsg {
-    pub admin: Option<String>,
-    pub members: Vec<Member>,
-    pub cw4_voting_id: u64,
+    pub admin: Addr,
     pub claim_msg_plaintext: String,
+    pub members: Vec<Member>,
+    pub cw_goop_id: u64,
+    pub per_address_limit: u32,
 }
 
 #[cw_serde]
-pub struct AirdropClaimResponse {
+pub struct HeadstashClaimResponse {
     result: bool,
     amount: u32,
 }
 
 #[cw_serde]
 pub enum ExecuteMsg {
-    ClaimAirdrop {
+    ClaimHeadstash {
         eth_address: String,
         eth_sig: String,
     },
@@ -28,6 +30,4 @@ pub enum ExecuteMsg {
 pub enum QueryMsg {
     #[returns(bool)]
     HeadstashEligible { eth_address: String },
-    #[returns()]
-    HeadstashAmountAtHeight
 }

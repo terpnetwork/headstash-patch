@@ -2,15 +2,14 @@
 use crate::error::ContractError;
 use crate::state::CONFIG;
 use cosmwasm_std::entry_point;
-use cosmwasm_std::{DepsMut, Env, Reply};
+use cosmwasm_std::{DepsMut, Env, Reply, Response};
 use cw_utils::{parse_reply_instantiate_data, MsgInstantiateContractResponse, ParseReplyError};
-use sg_std::Response;
 
-const INIT_HEADSTASH_GROUP_ID: u64 = 1;
+const INIT_CW_GOOP_ID: u64 = 1;
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn reply(deps: DepsMut, _env: Env, msg: Reply) -> Result<Response, ContractError> {
-    if msg.id != INIT_HEADSTASH_GROUP_ID {
+    if msg.id != INIT_CW_GOOP_ID {
         return Err(ContractError::InvalidReplyID {});
     }
     let reply = parse_reply_instantiate_data(msg);
@@ -23,14 +22,14 @@ fn match_reply(
 ) -> Result<Response, ContractError> {
     match reply {
         Ok(res) => {
-            let headstash_group_address = &res.contract_address;
+            let cw_goop_address = &res.contract_address;
             let mut config = CONFIG.load(deps.storage)?;
-            config.headstash_group_address = Some(headstash_group_address.to_string());
+            config.cw_goop_address = Some(cw_goop_address.to_string());
             CONFIG.save(deps.storage, &config)?;
 
             Ok(Response::default()
-                .add_attribute("action", "init_headstash_group_reply")
-                .add_attribute("headstash_group_address", headstash_group_address))
+                .add_attribute("action", "init_cw_goop_address_reply")
+                .add_attribute("cw_goop_address", cw_goop_address))
         }
         Err(_) => Err(ContractError::ReplyOnSuccess {}),
     }
