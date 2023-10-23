@@ -10,7 +10,7 @@ pub struct Member {
 #[cw_serde]
 pub struct InstantiateMsg {
     pub members: Vec<Member>,
-    pub member_limit: u32,
+    pub member_limit: u32, // 1
     pub admins: Vec<String>,
     pub admins_mutable: bool,
 }
@@ -59,6 +59,8 @@ pub enum QueryMsg {
         sender: String,
         msg: CosmosMsg<Empty>,
     },
+    #[returns(PerAddressLimitResponse)]
+    PerAddressLimit {},
 }
 
 #[cw_serde]
@@ -81,6 +83,7 @@ pub struct MemberResponse {
 #[cw_serde]
 pub struct ConfigResponse {
     pub num_members: u32,
+    pub per_address_limit: u32,
     pub member_limit: u32,
 }
 
@@ -95,4 +98,9 @@ pub enum SudoMsg {
 #[cw_serde]
 pub struct CanExecuteResponse {
     pub can_execute: bool,
+}
+
+#[cw_serde]
+pub struct PerAddressLimitResponse {
+    pub limit: u64,
 }

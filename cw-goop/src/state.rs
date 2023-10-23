@@ -6,6 +6,7 @@ use cw_storage_plus::{Item, Map};
 pub struct Config {
     pub num_members: u32,
     pub member_limit: u32,
+    pub per_address_limit: u32,
 }
 
 #[cw_serde]

@@ -51,6 +51,7 @@ pub fn instantiate(
     let config = Config {
         num_members: msg.members.len() as u32,
         member_limit: msg.member_limit,
+        per_address_limit: msg.member_limit,
     };
     CONFIG.save(deps.storage, &config)?;
 
@@ -135,11 +136,17 @@ pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
         QueryMsg::Member { member } => to_binary(&query_member(deps, member)?),
         QueryMsg::Config {} => to_binary(&query_config(deps, env)?),
         QueryMsg::AdminList {} => to_binary(&query_admin_list(deps)?),
+        QueryMsg::PerAddressLimit {} => to_binary(&query_per_address_limit(deps)?),
         QueryMsg::CanExecute { sender, .. } => to_binary(&query_can_execute(deps, &sender)?),
     }
 }
 
 
+
+pub fn query_per_address_limit(deps: Deps) -> StdResult<u32> {
+    let config = CONFIG.load(deps.storage)?;
+    Ok(config.per_address_limit)
+}
 
 
 pub fn query_members(
@@ -189,6 +196,7 @@ pub fn query_config(deps: Deps, _env: Env) -> StdResult<ConfigResponse> {
     Ok(ConfigResponse {
         num_members: config.num_members,
         member_limit: config.member_limit,
+        per_address_limit: config.per_address_limit,
     })
 }
 
