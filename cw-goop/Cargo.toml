@@ -1,6 +1,6 @@
 [package]
 name = "cw-goop"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["terpnetwork contributors <terp.network@skiff.com>"]
 description = "Headstash Goop Contract"
 license = "Apache-2.0"
