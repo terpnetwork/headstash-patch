@@ -4,10 +4,6 @@ version = "0.1.0"
 authors = ["terpnetwork contributors <terp.network@skiff.com>"]
 description = "Headstash Goop Contract"
 license = "Apache-2.0"
-<<<<<<< HEAD
-
-=======
->>>>>>> 0538915e67c78291dac6c349658452a06179be93
 edition = "2021"
 
 exclude = [
