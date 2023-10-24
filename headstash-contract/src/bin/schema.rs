@@ -1,6 +1,6 @@
 use cosmwasm_schema::write_api;
 
-use project_name::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
+use headstash_contract::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
 
 fn main() {
     write_api! {

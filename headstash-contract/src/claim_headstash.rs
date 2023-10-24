@@ -30,7 +30,7 @@ pub fn claim_headstash(
     )?;
 
     // get headstash amount 
-    let headstash_amount = get_headstash_amount(&deps, eth_address)?;
+    let headstash_amount = get_headstash_amount(&deps,  eth_address.clone(),)?;
 
     // claim headstash amount 
     let res = claim_headstash_amount(&deps, info, headstash_amount)?;
@@ -98,12 +98,12 @@ mod build_messages {
         let headstash_amount = CwGoopContract(cw_goop_address.clone())
             .get_headstash_amount(&deps.querier, eth_address.clone())?;
         
-        // Convert the headstash_amount to a string
-        let headstash_amount_str = headstash_amount.to_string();
+        // // Convert the headstash_amount to a string
+        // let headstash_amount_str = headstash_amount.to_string();
         
         // Create an instance of HeadstashAmountResponse
         let res = HeadstashAmountResponse {
-            headstash_amount: headstash_amount_str,
+            headstash_amount: headstash_amount,
             // other fields in HeadstashAmountResponse
         };
         
