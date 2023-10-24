@@ -4,7 +4,7 @@ use crate::admin::{
 use crate::error::ContractError;
 use crate::helpers::validators::map_validate;
 use crate::msg::{
-    AddMembersMsg, ConfigResponse, ExecuteMsg,  HasMemberResponse,
+    AddMembersMsg, ConfigResponse, ExecuteMsg,  HasMemberResponse,HeadstashAmountResponse,
      InstantiateMsg, Member, MembersResponse, QueryMsg,
     
 };
@@ -147,6 +147,7 @@ pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
         QueryMsg::AdminList {} => to_binary(&query_admin_list(deps)?),
         QueryMsg::ClaimLimit {} => to_binary(&query_claim_limit(deps)?),
         QueryMsg::CanExecute { sender, .. } => to_binary(&query_can_execute(deps, &sender)?),
+        QueryMsg::GetHeadstashAmount {address} => to_binary(&query_get_headstash_amount(deps, address)?)
     }
 }
 
@@ -188,13 +189,23 @@ pub fn query_members(
     Ok(MembersResponse { members })
 }
 
-pub fn query_has_member(deps: Deps, member: String) -> StdResult<HasMemberResponse> {
-    let addr = member;
+pub fn query_get_headstash_amount(deps: Deps, address: String) -> StdResult<HeadstashAmountResponse> {
+    let member = query_member(deps, address)?;
 
-    Ok(HasMemberResponse {
-        has_member: GOOPLIST.has(deps.storage, addr),
+    Ok(HeadstashAmountResponse {
+        headstash_amount: member.headstash_amount,
     })
 }
+
+pub fn query_has_member(deps: Deps, member: String) -> StdResult<HasMemberResponse> {
+    let addr = deps.api.addr_validate(&member)?;
+
+    Ok(HasMemberResponse {
+        has_member: GOOPLIST.has(deps.storage, addr.to_string()),
+    })
+}
+
+
 
 pub fn query_member(deps: Deps, member: String) -> StdResult<Member> {
     let addr = member;

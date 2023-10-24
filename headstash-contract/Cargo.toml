@@ -48,7 +48,7 @@ cosmwasm-std = { version = "1.4.0", features = [
     # Enable this if you only deploy to chains that have CosmWasm 1.4 or higher
     # "cosmwasm_1_4",
 ] }
-cw-goop = "0.1.3"
+cw-goop = "0.1.4"
 cw-storage-plus = "1.1.0"
 cw-utils = "1.0.2"
 cw2 = "1.1.0"

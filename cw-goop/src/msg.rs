@@ -65,6 +65,10 @@ pub enum QueryMsg {
     },
     #[returns(ClaimLimitResponse)]
     ClaimLimit {},
+    #[returns(HeadstashAmountResponse)]
+    GetHeadstashAmount {
+        address: String,
+    },
 }
 
 #[cw_serde]
@@ -82,6 +86,10 @@ pub struct MemberResponse {
     pub member: Member,
 }
 
+#[cw_serde]
+pub struct HeadstashAmountResponse{
+    pub headstash_amount: u32,
+}
 
 
 #[cw_serde]

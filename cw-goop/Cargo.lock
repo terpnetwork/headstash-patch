@@ -306,7 +306,7 @@ dependencies = [
 
 [[package]]
 name = "cw-goop"
-version = "0.1.2"
+version = "0.1.4"
 dependencies = [
  "cosmwasm-schema",
  "cosmwasm-std",
