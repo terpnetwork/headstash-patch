@@ -6,3 +6,10 @@
 - Import `Member` into headstash contract, so that we can handle the allocation amounts with the addr `weight`.
 ## [headstash-contract](./headstash-contract/)
 - fork of Stargaze's [sg-eth-airdrop](https://github.com/public-awesome/launchpad/blob/main/contracts/sg-eth-airdrop)
+
+
+# to-do
+`cw-goop`
+- finish adding method `config` for struct `cw_goop::helpers::interface::CwGoopContract`
+`headstash-contract`
+- load 

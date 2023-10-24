@@ -8,7 +8,7 @@ pub struct InstantiateMsg {
     pub claim_msg_plaintext: String,
     pub members: Vec<Member>, 
     pub cw_goop_id: u64, 
-    pub per_address_limit: u32,
+    pub claim_limit: u32,
     pub admins_mutable: bool,
 }
 

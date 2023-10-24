@@ -2,11 +2,15 @@ use crate::query::query_headstash_goop;
 use crate::state::ADDRS_CLAIM_COUNT;
 use crate::{state::CONFIG, ContractError};
 use build_messages::claim_and_headstash_add;
-use cosmwasm_std::{coins, DepsMut,  BankMsg, StdResult, Env, MessageInfo, Response, CosmosMsg, SubMsg, Addr};
+use cosmwasm_std::{coins, DepsMut,  BankMsg, StdResult, Env, MessageInfo, Response, CosmosMsg, SubMsg};
 use cw_goop::msg::ExecuteMsg as CwGoopContractExecuteMsg;
 use cw_goop::{helpers::interface::CwGoopContract, msg::AddMembersMsg};
 use cw_goop::msg::Member;
 use validation::validate_claim;
+
+
+pub const DEFAULT_CLAIM_COUNT: u32 = 0; 
+
 
 pub fn claim_headstash(
     deps: DepsMut,
@@ -16,8 +20,6 @@ pub fn claim_headstash(
     eth_sig: String,
 ) -> Result<Response, ContractError> {
     let config = CONFIG.load(deps.storage)?;
-
-
     validate_claim(
         &deps,
         info.clone(),
@@ -61,6 +63,7 @@ mod build_messages {
         info: MessageInfo,
         headstash_amount: u128,
     ) -> Result<Response, ContractError> {
+        let config = CONFIG.load(deps.storage)?;
         let mut res = Response::new();
        
         let bank_msg = SubMsg::new(BankMsg::Send {
@@ -68,10 +71,10 @@ mod build_messages {
             amount: coins(headstash_amount, NATIVE_BOND_DENOM),
         });
         res = res.add_submessage(bank_msg);
-        let headstash_goop_address = query_headstash_goop(deps)?;
+        let headstash_goop_address = query_headstash_goop(deps.as_ref(), env)?;
         let res = res.add_message(add_member_to_headstash_goop_address(
             deps,
-            info.sender,
+            info.sender.to_string(),
             1,
             headstash_goop_address,
         )?);
@@ -81,18 +84,16 @@ mod build_messages {
 
     fn add_member_to_headstash_goop_address(
         deps: &DepsMut,
-        member_addresses: Addr,
-        mint_count: u32, 
+        member_address: String,
+        headstash_amount: u32, 
         headstash_goop_address: String,
     ) -> StdResult<CosmosMsg> {
         let inner_msg = AddMembersMsg {
-                to_add: member_addresses
-                    .into_iter()
-                    .map(|addr| Member {
-                        address: addr.to_string(),
-                        mint_count,
-                    })  
-                    .collect(),
+                to_add: vec![Member {
+                    address: member_address.to_string(),
+                    headstash_amount,
+                    claim_count: DEFAULT_CLAIM_COUNT,
+                }],
         };
         let execute_msg = CwGoopContractExecuteMsg::AddMembers(inner_msg);
             CwGoopContract(deps.api.addr_validate(&headstash_goop_address)?)
@@ -106,7 +107,7 @@ mod validation {
     use ethereum_verify::verify_ethereum_text;
 
     use crate::{
-        query::{query_headstash_is_eligible, query_per_address_limit},
+        query::{query_headstash_is_eligible, query_claim_limit},
         state::Config,
     };
 
@@ -164,8 +165,8 @@ mod validation {
     ) -> Result<(), ContractError> {
         let claim_count = ADDRS_CLAIM_COUNT.load(deps.storage, eth_address);
         let claim_count = claim_count.unwrap_or(0);
-        let per_address_limit = query_per_address_limit(&deps.as_ref())?;
-        if claim_count < per_address_limit {
+        let claim_limit = query_claim_limit(&deps.as_ref())?;
+        if claim_count < claim_limit {
             Ok(())
         } else {
             Err(ContractError::ClaimCountReached {

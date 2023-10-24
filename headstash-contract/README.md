@@ -10,7 +10,7 @@ These contracts handle how headstash recipients can verify ownership & claim the
 
 ## to-do
 - create `load_goop_member()`
-- modify `claim_and_headstash_add()` so that we can configure handle the headstash allocation using the `Member`  
+- create `query_headstash_goop()`
 
 ## InstantiateMsg
 ```rs
@@ -20,7 +20,7 @@ pub struct InstantiateMsg {
     pub claim_msg_plaintext: String, // {wallet}
     pub members: Vec<Member>, 
     pub cw_goop_id: u64, 
-    pub per_address_limit: u32, // 1 claim per address
+    pub claim_limit: u32, // 1 claim per address
     pub admins_mutable: bool,
 }
 ```
@@ -49,7 +49,7 @@ json example
     }
   ],
   "cw_goop_id": 123,
-  "per_address_limit": 10,
+  "claim_limit": 10,
   "admins_mutable": true
 }
 ```

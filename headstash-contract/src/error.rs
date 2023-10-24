@@ -54,4 +54,6 @@ pub enum ContractError {
 
     #[error("Max claim amount not set")]
     MaxClaimCountNotSet {},
+    #[error("cw-goop address missing")]
+    CwGoopAddressMissing {},
 }

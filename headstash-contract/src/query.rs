@@ -1,5 +1,5 @@
 use crate::{msg::QueryMsg, state::CONFIG, ContractError};
-use cosmwasm_std::{ Env, Deps, DepsMut, StdResult, entry_point, to_binary, Binary};
+use cosmwasm_std::{ Env, Deps,  StdResult, entry_point, to_binary, Binary};
 use cw_goop::helpers::interface::CwGoopContract;
 // use cw_goop::msg::Member;
 
@@ -30,29 +30,24 @@ pub fn query_headstash_is_eligible(deps: Deps, eth_address: String) -> StdResult
     }
 }
 
-pub fn query_headstash_goop(deps: &DepsMut) -> Result<String, ContractError> {
+pub fn query_headstash_goop(deps: Deps, _env: Env) -> Result<String, ContractError> {
+    // Load the Config from storage
     let config = CONFIG.load(deps.storage)?;
-    let cw_goop_address = match &config.cw_goop_address {
-        Some(address) => deps.api.addr_validate(address)?,
-        None => {
-            // Handle the case when config.cw_goop_address is None, e.g., return an error or provide a default address.
-            // For now, we'll panic to indicate that the address is missing.
-            panic!("config.cw_goop_address is not set");
-        }
-    };
-        let config = CwGoopContract(cw_goop_address).config(&deps.querier)?;
-    match config.cw_goop_address {
-        Some(cw_goop) => Ok(cw_goop),
-        None => Err(ContractError::HeadstashGroupNotSet {}),
-    }
+
+    // Check if cw_goop_address is Some and unwrap it, or provide a default if it's None
+    let cw_goop_address = config.cw_goop_address.unwrap_or("default_value".to_string());
+
+    // Now, cw_goop_address contains the value of the cw_goop_address field
+    Ok(cw_goop_address)
 }
 
-pub fn query_per_address_limit(deps: &Deps) -> StdResult<u32> {
+
+pub fn query_claim_limit(deps: &Deps) -> StdResult<u32> {
     let config = CONFIG.load(deps.storage)?;
 
     match config.cw_goop_address {
         Some(address) => CwGoopContract(deps.api.addr_validate(&address)?)
-            .per_address_limit(&deps.querier),
+            .claim_limit(&deps.querier),
         None => Err(cosmwasm_std::StdError::NotFound {
             kind: "Whitelist Contract".to_string(),
         }),
