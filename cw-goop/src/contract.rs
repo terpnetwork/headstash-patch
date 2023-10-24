@@ -8,7 +8,7 @@ use crate::msg::{
      InstantiateMsg, Member, MembersResponse, QueryMsg,
     
 };
-use crate::state::{AdminList, Config, ADMIN_LIST, CONFIG, GOOPLIST};
+use crate::state::{AdminList, Config, ADMIN_LIST, CONFIG, GOOPLIST,HEADSTASH_AMOUNT};
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{ to_binary, Binary, Deps, DepsMut, Env, MessageInfo, StdResult, Response};
@@ -22,10 +22,9 @@ use cw_utils::{ maybe_addr};
 const CONTRACT_NAME: &str = "crates.io:cw-goop";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
-// contract governance params
-pub const MAX_MEMBERS: u32 = 12376;
-pub const PRICE_PER_1000_MEMBERS: u128 = 100_000_000;
-pub const MIN_MINT_PRICE: u128 = 0;
+// headstash constants
+pub const MAX_MEMBERS: u32 = 12376; // # of unique addr in headstash allocation
+pub const MAX_CLAIM: u32 = 1; // max # of times an address can claim a headstash allocation
 
 // queries
 const PAGINATION_DEFAULT_LIMIT: u32 = 25;
@@ -40,32 +39,36 @@ pub fn instantiate(
 ) -> Result<Response, ContractError> {
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
 
-    if msg.member_limit == 0 || msg.member_limit > MAX_MEMBERS {
+    // ensures claim_limit value is valid
+    if msg.claim_limit == 0 || msg.claim_limit > MAX_CLAIM {
         return Err(ContractError::InvalidMemberLimit {
             min: 1,
-            max: MAX_MEMBERS,
-            got: msg.member_limit,
+            max: MAX_CLAIM,
+            got: msg.claim_limit,
         });
     }
 
+    // sets up the new contracts config.
     let config = Config {
         num_members: msg.members.len() as u32,
-        member_limit: msg.member_limit,
-        per_address_limit: msg.member_limit,
+        claim_limit: msg.claim_limit,
     };
     CONFIG.save(deps.storage, &config)?;
 
+    // sets up the new contracts admins
     let admin_config = AdminList {
         admins: map_validate(deps.api, &msg.admins)?,
         mutable: msg.admins_mutable,
     };
     ADMIN_LIST.save(deps.storage, &admin_config)?;
 
+    // responds a new smart contract instance
     let res = Response::new();
- 
-    if config.member_limit < config.num_members {
+    
+    // if member limit will be less than the number of members, error.
+    if MAX_MEMBERS < config.num_members {
         return Err(ContractError::MembersExceeded {
-            expected: config.member_limit,
+            expected: MAX_MEMBERS,
             actual: config.num_members,
         });
     }
@@ -101,20 +104,26 @@ pub fn execute_add_members(
     msg: AddMembersMsg,
 ) -> Result<Response, ContractError> {
     let mut config = CONFIG.load(deps.storage)?;
+
+    // ensure sender can call this function.
     can_execute(&deps, info.sender.clone())?;
 
+    // iterates of adding each new member will exceed max member config
     for add in msg.to_add.into_iter() {
-        if config.num_members >= config.member_limit {
+        if config.num_members >= MAX_MEMBERS {
             return Err(ContractError::MembersExceeded {
-                expected: config.member_limit,
+                expected: MAX_MEMBERS,
                 actual: config.num_members,
             });
         }
         let addr = &add.address;
+        // checks for duplicates
         if GOOPLIST.has(deps.storage, addr.clone()) {
             return Err(ContractError::DuplicateMember(addr.to_string()));
         }
-        GOOPLIST.save(deps.storage, addr.to_string(), &add.mint_count)?;
+        // saves new member address to storage
+        GOOPLIST.save(deps.storage, addr.to_string(), &add.claim_count)?;
+        // increments total number of members
         config.num_members += 1;
     }
 
@@ -133,19 +142,19 @@ pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
             to_binary(&query_members(deps, start_after, limit)?)
         }
         QueryMsg::HasMember { member } => to_binary(&query_has_member(deps, member)?),
-        QueryMsg::Member { member } => to_binary(&query_member(deps, member)?),
+        QueryMsg::Member { member, .. } => to_binary(&query_member(deps, member)?),
         QueryMsg::Config {} => to_binary(&query_config(deps, env)?),
         QueryMsg::AdminList {} => to_binary(&query_admin_list(deps)?),
-        QueryMsg::PerAddressLimit {} => to_binary(&query_per_address_limit(deps)?),
+        QueryMsg::ClaimLimit {} => to_binary(&query_claim_limit(deps)?),
         QueryMsg::CanExecute { sender, .. } => to_binary(&query_can_execute(deps, &sender)?),
     }
 }
 
 
 
-pub fn query_per_address_limit(deps: Deps) -> StdResult<u32> {
+pub fn query_claim_limit(deps: Deps) -> StdResult<u32> {
     let config = CONFIG.load(deps.storage)?;
-    Ok(config.per_address_limit)
+    Ok(config.claim_limit)
 }
 
 
@@ -159,17 +168,22 @@ pub fn query_members(
         .min(PAGINATION_MAX_LIMIT) as usize;
     let start_addr = maybe_addr(deps.api, start_after)?;
     let start = start_addr.map(Bound::exclusive);
-    let members = GOOPLIST
-        .range(deps.storage, start, None, Order::Ascending)
-        .take(limit)
-        .map(|res| {
-            res.map(|(addr, mint_count)| Member {
+    
+    let members: Vec<Member> = GOOPLIST
+    .range(deps.storage, start, None, Order::Ascending)
+    .take(limit)
+    .map(|res| {
+        res.map(|(addr, headstash_amount)| {
+        let claim_count = GOOPLIST.load(deps.storage, addr.clone()).unwrap_or_default();
+            Member {
                 address: addr,
-                mint_count,
-            })
+                headstash_amount,
+                claim_count,
+            }
         })
-        .map(Result::unwrap)
-        .collect::<Vec<_>>();
+    })
+    .collect::<Result<Vec<Member>, _>>()?;
+
 
     Ok(MembersResponse { members })
 }
@@ -184,10 +198,12 @@ pub fn query_has_member(deps: Deps, member: String) -> StdResult<HasMemberRespon
 
 pub fn query_member(deps: Deps, member: String) -> StdResult<Member> {
     let addr = member;
-    let mint_count = GOOPLIST.load(deps.storage, addr.clone())?;
+    let headstash_amount = HEADSTASH_AMOUNT.load(deps.storage, addr.clone())?;
+    let claim_count = GOOPLIST.load(deps.storage, addr.clone())?;
     Ok(Member {
         address: addr,
-        mint_count,
+        headstash_amount,
+        claim_count,
     })
 }
 
@@ -195,8 +211,8 @@ pub fn query_config(deps: Deps, _env: Env) -> StdResult<ConfigResponse> {
     let config = CONFIG.load(deps.storage)?;
     Ok(ConfigResponse {
         num_members: config.num_members,
-        member_limit: config.member_limit,
-        per_address_limit: config.per_address_limit,
+        claim_limit: config.claim_limit,
+        config,
     })
 }
 

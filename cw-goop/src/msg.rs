@@ -1,35 +1,39 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
 use cosmwasm_std::{ CosmosMsg, Empty};
+use crate::state::Config;
+
 
 #[cw_serde]
 pub struct Member {
-    pub address: String,
-    pub mint_count: u32,
+    pub address: String, // Ox24EaSp0...
+    pub headstash_amount: u32,
+    pub claim_count: u32, // # of claims. Start @ 0, never more than 1.
+
 }
 
 #[cw_serde]
 pub struct InstantiateMsg {
     pub members: Vec<Member>,
-    pub member_limit: u32, // 1
+    pub claim_limit: u32, // 1
     pub admins: Vec<String>,
     pub admins_mutable: bool,
 }
 
 #[cw_serde]
 pub enum ExecuteMsg {
-    AddMembers(AddMembersMsg),
-    UpdateAdmins { admins: Vec<String> },
-    Freeze {},
+    AddMembers(AddMembersMsg), // add members to contract
+    UpdateAdmins { admins: Vec<String> }, // update the admins of contract
+    Freeze {}, // freeze contract state
 }
 
 #[cw_serde]
-pub struct AdminListResponse {
+pub struct AdminListResponse { 
     pub admins: Vec<String>,
     pub mutable: bool,
 }
 
 #[cw_serde]
-pub struct AddMembersMsg {
+pub struct AddMembersMsg { 
     pub to_add: Vec<Member>,
 }
 
@@ -49,7 +53,7 @@ pub enum QueryMsg {
     #[returns(HasMemberResponse)]
     HasMember { member: String },
     #[returns(MemberResponse)]
-    Member { member: String },
+    Member { member: String, claim_count: u32 },
     #[returns(ConfigResponse)]
     Config {},
     #[returns(AdminListResponse)]
@@ -59,12 +63,12 @@ pub enum QueryMsg {
         sender: String,
         msg: CosmosMsg<Empty>,
     },
-    #[returns(PerAddressLimitResponse)]
-    PerAddressLimit {},
+    #[returns(ClaimLimitResponse)]
+    ClaimLimit {},
 }
 
 #[cw_serde]
-pub struct MembersResponse {
+pub struct MembersResponse { //returns a the vector of members.
     pub members: Vec<Member>,
 }
 
@@ -83,8 +87,8 @@ pub struct MemberResponse {
 #[cw_serde]
 pub struct ConfigResponse {
     pub num_members: u32,
-    pub per_address_limit: u32,
-    pub member_limit: u32,
+    pub claim_limit: u32,
+    pub config: Config,
 }
 
 #[cw_serde]
@@ -101,6 +105,6 @@ pub struct CanExecuteResponse {
 }
 
 #[cw_serde]
-pub struct PerAddressLimitResponse {
-    pub limit: u64,
+pub struct ClaimLimitResponse {
+    pub limit: u32,
 }

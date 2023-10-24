@@ -2,13 +2,15 @@
 
 Cw-goop is a customized version of [Stargaze's Flexible Whitelist](https://github.com/public-awesome/launchpad/tree/main/contracts/whitelists/whitelist-flex).
 
+
+
 ## InstantiateMsg
 
 ```rust
 #[cw_serde]
 pub struct InstantiateMsg {
     pub members: Vec<Member>,
-    pub member_limit: u32,
+    pub claim_limit: u32,
     pub admins: Vec<String>,
     pub admins_mutable: bool,
 }
@@ -20,14 +22,16 @@ json example:
   "members": [
     {
       "address": "0x24EaSp0rts..",
-      "mint_count": 0
+      "headstash_amount": 123456789,
+      "claim_count": 0
     },
     {
       "address": "0x23iMiNtHeGaMe...",
-      "mint_count": 1234567890 // 1234.567890 TERP
+      "headstash_amount": 987654321,
+      "claim_count": 1 
     }
   ],
-  "member_limit": 1,
+  "claim_limit": 1,
   "admins": [
     "terp1...", 
     "terp1a...."
@@ -52,12 +56,12 @@ pub enum ExecuteMsg {
   "AddMembers": {
     "to_add": [
       {
-        "address": "new_member_address_1",
-        "mint_count": 0
+        "address": "0x24EaSp0rts",
+        "claim_count": 0
       },
       {
-        "address": "new_member_address_2",
-        "mint_count": 0
+        "address": "0x23iMiNtHeGaMe",
+        "claim_count": 0
       }
     ]
   }

@@ -5,8 +5,7 @@ use cw_storage_plus::{Item, Map};
 #[cw_serde]
 pub struct Config {
     pub num_members: u32,
-    pub member_limit: u32,
-    pub per_address_limit: u32,
+    pub claim_limit: u32,
 }
 
 #[cw_serde]
@@ -30,5 +29,8 @@ pub const ADMIN_LIST: Item<AdminList> = Item::new("admin_list");
 
 pub const CONFIG: Item<Config> = Item::new("config");
 
-// address <> mint_count
-pub const GOOPLIST: Map<String, u32> = Map::new("wl");
+// address <> claim_count
+pub const GOOPLIST: Map<String, u32> = Map::new("gl");
+// address <> amount
+pub const HEADSTASH_AMOUNT: Map<String, u32> = Map::new("ha");
+

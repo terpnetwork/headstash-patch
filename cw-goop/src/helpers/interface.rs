@@ -36,11 +36,20 @@ impl CwGoopContract {
         .into())
     }
 
-    pub fn per_address_limit(&self, querier: &QuerierWrapper) -> StdResult<u32> {
-        let per_address_limit: u32 = querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
+    pub fn claim_limit(&self, querier: &QuerierWrapper) -> StdResult<u32> {
+        let claim_limit: u32 = querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
             contract_addr: self.addr().into(),
-            msg: to_binary(&QueryMsg::PerAddressLimit {})?,
+            msg: to_binary(&QueryMsg::ClaimLimit {})?,
         }))?;
-        Ok(per_address_limit)
+        Ok(claim_limit)
+    }
+
+    pub fn config(&self, querier: &QuerierWrapper) -> StdResult<Config> {
+        let res: ConfigResponse = querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
+            contract_addr: self.addr().into(),
+            msg: to_binary(&QueryMsg::Config {})?,
+        }))?;
+
+        Ok(res.config)
     }
 }
