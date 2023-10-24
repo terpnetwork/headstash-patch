@@ -6,9 +6,8 @@ use crate::state::Config;
 #[cw_serde]
 pub struct Member {
     pub address: String, // Ox24EaSp0...
-    pub headstash_amount: u32,
+    pub headstash_amount: u128,
     pub claim_count: u32, // # of claims. Start @ 0, never more than 1.
-
 }
 
 #[cw_serde]
@@ -20,16 +19,10 @@ pub struct InstantiateMsg {
 }
 
 #[cw_serde]
-pub enum ExecuteMsg {
+pub enum ExecuteMsg { // ADMIN ONLY FUNCTIONS
     AddMembers(AddMembersMsg), // add members to contract
     UpdateAdmins { admins: Vec<String> }, // update the admins of contract
     Freeze {}, // freeze contract state
-}
-
-#[cw_serde]
-pub struct AdminListResponse { 
-    pub admins: Vec<String>,
-    pub mutable: bool,
 }
 
 #[cw_serde]
@@ -53,7 +46,7 @@ pub enum QueryMsg {
     #[returns(HasMemberResponse)]
     HasMember { member: String },
     #[returns(MemberResponse)]
-    Member { member: String, claim_count: u32 },
+    Member { member: String, headstash_amount: u128, claim_count: u32 },
     #[returns(ConfigResponse)]
     Config {},
     #[returns(AdminListResponse)]
@@ -72,8 +65,19 @@ pub enum QueryMsg {
 }
 
 #[cw_serde]
-pub struct MembersResponse { //returns a the vector of members.
-    pub members: Vec<Member>,
+pub struct HeadstashAmountResponse{
+    pub headstash_amount: u128,
+}
+
+#[cw_serde]
+pub struct ClaimLimitResponse {
+    pub limit: u32,
+}
+
+#[cw_serde]
+pub struct AdminListResponse { 
+    pub admins: Vec<String>,
+    pub mutable: bool,
 }
 
 #[cw_serde]
@@ -87,10 +91,9 @@ pub struct MemberResponse {
 }
 
 #[cw_serde]
-pub struct HeadstashAmountResponse{
-    pub headstash_amount: u32,
+pub struct MembersResponse { //returns a the vector of members.
+    pub members: Vec<Member>,
 }
-
 
 #[cw_serde]
 pub struct ConfigResponse {
@@ -110,9 +113,4 @@ pub enum SudoMsg {
 #[cw_serde]
 pub struct CanExecuteResponse {
     pub can_execute: bool,
-}
-
-#[cw_serde]
-pub struct ClaimLimitResponse {
-    pub limit: u32,
 }

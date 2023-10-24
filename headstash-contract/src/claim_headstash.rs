@@ -1,11 +1,12 @@
 
 use crate::state::ADDRS_CLAIM_COUNT;
-use crate::{state::CONFIG, ContractError};
+ use crate::ContractError;
+use crate::{state::CONFIG};
 use build_messages::{ get_headstash_amount,claim_headstash_amount};
-use cosmwasm_std::{coins, DepsMut,  BankMsg, StdResult, Env, MessageInfo, Response, CosmosMsg, SubMsg};
+use cosmwasm_std::{coins,Addr ,DepsMut,  BankMsg, StdResult, Env, MessageInfo, Response, CosmosMsg, SubMsg};
 use cw_goop::msg::ExecuteMsg as CwGoopContractExecuteMsg;
 use cw_goop::{helpers::interface::CwGoopContract, msg::AddMembersMsg};
-use cw_goop::msg::Member;
+use cw_goop::msg::{Member, HeadstashAmountResponse};
 use validation::validate_claim;
 
 
@@ -78,28 +79,42 @@ mod build_messages {
         deps: &DepsMut,
         eth_address: String,
     ) -> Result<u128, ContractError> {
-
         // get cw-goop contract address
-        let mut config = CONFIG.load(deps.storage)?;  
-        
-        let cw_goop_address = config.cw_goop_address;
+        let config = CONFIG.load(deps.storage)?;
+    
+        let cw_goop_address = match &config.cw_goop_address {
+            Some(address) => {
+                // If config.cw_goop_address is Some, convert the String to an Addr.
+                Addr::unchecked(address.clone())
+            }
+            None => {
+                // If config.cw_goop_address is None, handle it as you prefer.
+                // You can return an error, use a default address, or take some other action.
+                return Err(ContractError::CwGoopAddressMissing {});
+            }
+        };
+    
         // query the headstash_amount of the eth_address
-        let headstash_amount = CwGoopContract::get_headstash_amount(&deps, eth_address)?;
-
-            // Convert the headstash_amount to a string
+        let headstash_amount = CwGoopContract(cw_goop_address.clone())
+            .get_headstash_amount(&deps.querier, eth_address.clone())?;
+        
+        // Convert the headstash_amount to a string
         let headstash_amount_str = headstash_amount.to_string();
-        // return the amount in the response 
-        let mut res = Response::new();
-        res.add_attribute("headstash_amount", headstash_amount_str);
-    
-        Ok(headstash_amount)
-    
-    }       
+        
+        // Create an instance of HeadstashAmountResponse
+        let res = HeadstashAmountResponse {
+            headstash_amount: headstash_amount_str,
+            // other fields in HeadstashAmountResponse
+        };
+        
+        Ok(headstash_amount.into())
+    }
+           
 
 fn add_member_to_headstash_goop_address(
         deps: &DepsMut,
         member_address: String,
-        headstash_amount: u32, 
+        headstash_amount: u128, 
         headstash_goop_address: String,
     ) -> StdResult<CosmosMsg> {
         let inner_msg = AddMembersMsg {

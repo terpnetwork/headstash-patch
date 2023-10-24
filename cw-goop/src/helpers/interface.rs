@@ -53,8 +53,8 @@ impl CwGoopContract {
         Ok(res.config)
     }
 
-    pub fn get_headstash_amount(&self, querier: &QuerierWrapper, address: String) -> StdResult<u32> {
-        let get_headstash_amount: u32 = querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
+    pub fn get_headstash_amount(&self, querier: &QuerierWrapper, address: String) -> StdResult<u128> {
+        let get_headstash_amount: u128 = querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
             contract_addr: self.addr().into(),
             msg: to_binary(&QueryMsg::GetHeadstashAmount{ address })?,
         }))?;

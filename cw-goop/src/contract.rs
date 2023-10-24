@@ -178,7 +178,7 @@ pub fn query_members(
         let claim_count = GOOPLIST.load(deps.storage, addr.clone()).unwrap_or_default();
             Member {
                 address: addr,
-                headstash_amount,
+                headstash_amount: headstash_amount.into(),
                 claim_count,
             }
         })

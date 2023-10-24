@@ -32,5 +32,5 @@ pub const CONFIG: Item<Config> = Item::new("config");
 // address <> claim_count
 pub const GOOPLIST: Map<String, u32> = Map::new("gl");
 // address <> amount
-pub const HEADSTASH_AMOUNT: Map<String, u32> = Map::new("ha");
+pub const HEADSTASH_AMOUNT: Map<String, u128> = Map::new("ha");
 
