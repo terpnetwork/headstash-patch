@@ -1,7 +1,7 @@
-use crate::query::query_headstash_goop;
+
 use crate::state::ADDRS_CLAIM_COUNT;
 use crate::{state::CONFIG, ContractError};
-use build_messages::claim_and_headstash_add;
+use build_messages::{ get_headstash_amount,claim_headstash_amount};
 use cosmwasm_std::{coins, DepsMut,  BankMsg, StdResult, Env, MessageInfo, Response, CosmosMsg, SubMsg};
 use cw_goop::msg::ExecuteMsg as CwGoopContractExecuteMsg;
 use cw_goop::{helpers::interface::CwGoopContract, msg::AddMembersMsg};
@@ -28,13 +28,13 @@ pub fn claim_headstash(
         config.clone(),
     )?;
 
-    // Load the Member from storage using the eth_address
-    let member: Member = load_goop_member(deps.storage, &eth_address)?;
+    // get headstash amount 
+    let headstash_amount = get_headstash_amount(&deps, eth_address)?;
 
-    let headstash_amount = member.mint_count;
+    // claim headstash amount 
+    let res = claim_headstash_amount(&deps, info, headstash_amount)?;
 
-
-    let res = claim_and_headstash_add(&deps, info, headstash_amount)?;
+    // update address claim
     increment_local_claim_count_for_address(deps, eth_address)?;
 
     Ok(res.add_attribute("claimed_amount", headstash_amount.to_string()))
@@ -58,7 +58,7 @@ mod build_messages {
     use super::*;
     use crate::{state::NATIVE_BOND_DENOM};
 
-    pub fn claim_and_headstash_add(
+    pub fn claim_headstash_amount(
         deps: &DepsMut,
         info: MessageInfo,
         headstash_amount: u128,
@@ -71,18 +71,32 @@ mod build_messages {
             amount: coins(headstash_amount, NATIVE_BOND_DENOM),
         });
         res = res.add_submessage(bank_msg);
-        let headstash_goop_address = query_headstash_goop(deps.as_ref(), env)?;
-        let res = res.add_message(add_member_to_headstash_goop_address(
-            deps,
-            info.sender.to_string(),
-            1,
-            headstash_goop_address,
-        )?);
-
         Ok(res)
     }
 
-    fn add_member_to_headstash_goop_address(
+    pub fn get_headstash_amount(
+        deps: &DepsMut,
+        eth_address: String,
+    ) -> Result<u128, ContractError> {
+
+        // get cw-goop contract address
+        let mut config = CONFIG.load(deps.storage)?;  
+        
+        let cw_goop_address = config.cw_goop_address;
+        // query the headstash_amount of the eth_address
+        let headstash_amount = CwGoopContract::get_headstash_amount(&deps, eth_address)?;
+
+            // Convert the headstash_amount to a string
+        let headstash_amount_str = headstash_amount.to_string();
+        // return the amount in the response 
+        let mut res = Response::new();
+        res.add_attribute("headstash_amount", headstash_amount_str);
+    
+        Ok(headstash_amount)
+    
+    }       
+
+fn add_member_to_headstash_goop_address(
         deps: &DepsMut,
         member_address: String,
         headstash_amount: u32, 

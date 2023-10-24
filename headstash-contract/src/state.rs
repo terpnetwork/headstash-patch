@@ -18,4 +18,5 @@ pub const MAX_CLAIM_COUNT: u32 = 1;
 
 
 pub const CONFIG: Item<Config> = Item::new("cfg");
+
 pub const ADDRS_CLAIM_COUNT: Map<&str, u32> = Map::new("acc");

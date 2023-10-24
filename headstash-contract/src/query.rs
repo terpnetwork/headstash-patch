@@ -1,4 +1,4 @@
-use crate::{msg::QueryMsg, state::CONFIG, ContractError};
+use crate::{msg::QueryMsg, state::CONFIG};
 use cosmwasm_std::{ Env, Deps,  StdResult, entry_point, to_binary, Binary};
 use cw_goop::helpers::interface::CwGoopContract;
 // use cw_goop::msg::Member;
@@ -14,7 +14,7 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     }
 }
 
-// fn query_minter(deps: Deps) -> StdResult<Addr> {
+// fn load_goop_member(deps: Deps) -> StdResult<Member> {
 //     let config = CONFIG.load(deps.storage)?;
 //     Ok(config.minter_address)
 // }
@@ -30,16 +30,16 @@ pub fn query_headstash_is_eligible(deps: Deps, eth_address: String) -> StdResult
     }
 }
 
-pub fn query_headstash_goop(deps: Deps, _env: Env) -> Result<String, ContractError> {
-    // Load the Config from storage
-    let config = CONFIG.load(deps.storage)?;
+// pub fn query_headstash_goop(deps: Deps, _env: Env) -> Result<String, ContractError> {
+//     // Load the Config from storage
+//     let config = CONFIG.load(deps.storage)?;
 
-    // Check if cw_goop_address is Some and unwrap it, or provide a default if it's None
-    let cw_goop_address = config.cw_goop_address.unwrap_or("default_value".to_string());
+//     // Check if cw_goop_address is Some and unwrap it, or provide a default if it's None
+//     let cw_goop_address = config.cw_goop_address.unwrap_or("default_value".to_string());
 
-    // Now, cw_goop_address contains the value of the cw_goop_address field
-    Ok(cw_goop_address)
-}
+//     // Now, cw_goop_address contains the value of the cw_goop_address field
+//     Ok(cw_goop_address)
+// }
 
 
 pub fn query_claim_limit(deps: &Deps) -> StdResult<u32> {

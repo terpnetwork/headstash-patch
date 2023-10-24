@@ -24,6 +24,7 @@ pub fn instantiate(
 ) -> Result<Response, ContractError> {
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
     validate_instantiation_params(info.clone(), msg.clone())?;
+    
     let mut res = Response::new();
    
     let cfg = state_config(deps.as_ref(), info.clone(), msg.clone())?;
