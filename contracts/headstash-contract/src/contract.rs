@@ -66,9 +66,8 @@ mod build_message {
     ) -> Result<cosmwasm_std::SubMsg<>, ContractError> { // prev: SubMsg<StargazeMsgWrapper>
         let cw_goop_instantiate_msg = HGInstantiateMsg {
             members: msg.members,
-            claim_limit: msg.claim_limit,
-            admins: msg.admin,
-            admins_mutable: msg.admins_mutable,
+            admin: msg.admin,
+            admin_mutable: msg.admin_mutable,
         };
         let wasm_msg = WasmMsg::Instantiate {
             code_id: msg.cw_goop_id,

@@ -39,7 +39,9 @@ sha3                = "0.10"
 schemars            = { workspace = true }
 serde               = { workspace = true }
 thiserror           = { workspace = true }
-cw-goop             = { version = "0.1.5", features = ["library"] }
+cw-goop             = { workspace = true, features = ["library"] }
+whitelist-immutable = { workspace = true, features = ["library"] }
+
 
 [dev-dependencies]
 async-std       = "1.12.0"

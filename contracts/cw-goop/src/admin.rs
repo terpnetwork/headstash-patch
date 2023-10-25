@@ -1,29 +1,11 @@
 use cosmwasm_std::{Addr, Deps, DepsMut, Env, MessageInfo, StdResult, Response};
 
 use crate::{
-    helpers::validators::map_validate,
-    msg::{AdminListResponse, CanExecuteResponse},
+   msg::{AdminResponse, CanExecuteResponse},
     state::ADMIN_LIST,
     ContractError,
 };
 
-pub fn execute_update_admins(
-    deps: DepsMut,
-    _env: Env,
-    info: MessageInfo,
-    admins: Vec<String>,
-) -> Result<Response, ContractError> {
-    let mut cfg = ADMIN_LIST.load(deps.storage)?;
-    if !cfg.can_modify(info.sender.as_ref()) {
-        Err(ContractError::Unauthorized {})
-    } else {
-        cfg.admins = map_validate(deps.api, &admins)?;
-        ADMIN_LIST.save(deps.storage, &cfg)?;
-
-        let res = Response::new().add_attribute("action", "update_admins");
-        Ok(res)
-    }
-}
 
 pub fn can_execute(deps: &DepsMut, sender: Addr) -> Result<Addr, ContractError> {
     let cfg = ADMIN_LIST.load(deps.storage)?;
@@ -51,10 +33,10 @@ pub fn execute_freeze(
     }
 }
 
-pub fn query_admin_list(deps: Deps) -> StdResult<AdminListResponse> {
+pub fn query_admin_list(deps: Deps) -> StdResult<AdminResponse> {
     let cfg = ADMIN_LIST.load(deps.storage)?;
-    Ok(AdminListResponse {
-        admins: cfg.admins.into_iter().map(|a| a.into()).collect(),
+    Ok(AdminResponse {
+        admin: cfg.admin,
         mutable: cfg.mutable,
     })
 }

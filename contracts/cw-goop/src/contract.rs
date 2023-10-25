@@ -1,8 +1,7 @@
 use crate::admin::{
-    can_execute, execute_freeze, execute_update_admins, query_admin_list, query_can_execute,
+    can_execute, execute_freeze,  query_admin_list, query_can_execute,
 };
 use crate::error::ContractError;
-use crate::helpers::validators::map_validate;
 use crate::msg::{
     AddMembersMsg, ConfigResponse, ExecuteMsg,  HasMemberResponse, InstantiateMsg, 
     HeadstashAmountResponse, Member, MembersResponse, QueryMsg};
@@ -42,9 +41,10 @@ pub fn instantiate(
     };
     CONFIG.save(deps.storage, &config)?;
 
+
     let admin_config = AdminList {
-        admins: map_validate(deps.api, &msg.admins)?,
-        mutable: msg.admins_mutable,
+        admin: msg.admin,
+        mutable: msg.admin_mutable,
     };
     ADMIN_LIST.save(deps.storage, &admin_config)?;
 
@@ -74,7 +74,6 @@ pub fn execute(
 ) -> Result<Response, ContractError> {
     match msg {
         ExecuteMsg::AddMembers(msg) => execute_add_members(deps, env, info, msg),
-        ExecuteMsg::UpdateAdmins { admins } => execute_update_admins(deps, env, info, admins),
         ExecuteMsg::Freeze {} => execute_freeze(deps, env, info),
     }
 }

@@ -1,5 +1,5 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
-use cosmwasm_std::{ CosmosMsg, Empty};
+use cosmwasm_std::{ CosmosMsg, Empty, Addr};
 use crate::state::Config;
 
 #[cw_serde]
@@ -11,20 +11,19 @@ pub struct Member {
 #[cw_serde]
 pub struct InstantiateMsg {
     pub members: Vec<Member>,
-    pub admins: Vec<String>,
-    pub admins_mutable: bool,
+    pub admin: Addr,
+    pub admin_mutable: bool,
 }
 
 #[cw_serde]
 pub enum ExecuteMsg {
     AddMembers(AddMembersMsg),
-    UpdateAdmins { admins: Vec<String> },
     Freeze {},
 }
 
 #[cw_serde]
-pub struct AdminListResponse {
-    pub admins: Vec<String>,
+pub struct AdminResponse {
+    pub admin: Addr,
     pub mutable: bool,
 }
 
@@ -47,7 +46,7 @@ pub enum QueryMsg {
     Member { member: String },
     #[returns(ConfigResponse)]
     Config {},
-    #[returns(AdminListResponse)]
+    #[returns(AdminResponse)]
     AdminList {},
     #[returns(CanExecuteResponse)]
     CanExecute {

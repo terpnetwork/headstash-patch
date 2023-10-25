@@ -1,15 +1,15 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
 use cw_goop::msg::Member;
-
+use cosmwasm_std::Addr;
 
 #[cw_serde]
 pub struct InstantiateMsg {
-    pub admin: Vec<String>,
+    pub admin: Addr,
     pub claim_msg_plaintext: String,
     pub members: Vec<Member>,
     pub cw_goop_id: u64,
     pub claim_limit: u32,
-    pub admins_mutable: bool,
+    pub admin_mutable: bool,
 }
 
 #[cw_serde]

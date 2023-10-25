@@ -23,8 +23,7 @@ impl CwGoopContract {
             funds: vec![],
         }
         .into())
-    }
-
+    }   
     pub fn get_headstash_amount(&self, querier: &QuerierWrapper, address: String) -> StdResult<u128> {
         let get_headstash_amount: u128 = querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
             contract_addr: self.addr().into(),
