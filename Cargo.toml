@@ -1,0 +1,53 @@
+[workspace]
+members = [
+    "contracts/cw-goop",
+    "contracts/headstash-contract",
+]
+resolver = "2"
+
+[workspace.package]
+version    = "0.0.1"
+edition    = "2021"
+homepage   = "https://terp.network"
+repository = "https://github.com/terpnetwork/headstash-patch"
+license    = "Apache-2.0"
+
+[workspace.dependencies]
+cosmwasm-schema      = "1.2.1"
+cosmwasm-std         = "1.2.1"
+cw-controllers       = "1.1.0"
+cw2                  = "1.1.0"
+cw4                  = "1.1.0"
+cw4-group            = "1.1.0"
+cw721                = "0.18.0"
+cw721-base           = "0.18.0"
+cw-multi-test        = "0.16.2"
+cw-storage-plus      = "1.1.0"
+cw-utils             = "1.0.1"
+schemars             = "0.8.11"
+serde                = { version = "1.0.145", default-features = false, features = ["derive"] }
+thiserror            = "1.0.31"
+url                  = "2.2.2"
+sha2                 = { version = "0.10.2", default-features = false }
+ethereum-verify      = "3.3.0"
+headstash-contract   = { version = "0.1.0", path = "contracts/headstash-contract" }
+cw-goop              = { version = "0.1.5", path = "contracts/cw-goop" }
+semver               = "1"
+cw-ownable           = "0.5.1"
+
+[profile.release.package.headstash-contract]
+codegen-units = 1
+incremental   = false
+
+[profile.release.package.cw-goop]
+codegen-units = 1
+incremental   = false
+
+
+[profile.release]
+rpath            = false
+lto              = true
+overflow-checks  = true
+opt-level        = 3
+debug            = false
+debug-assertions = false

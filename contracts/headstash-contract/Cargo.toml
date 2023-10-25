@@ -1,0 +1,51 @@
+[package]
+name        = "headstash-contract"
+authors     = ["Terp Network <terp.network@skiff.com>"]
+description = "Terp Network Headstash Event Contract"
+version     = { workspace = true }
+edition     = { workspace = true }
+homepage    = { workspace = true }
+repository  = { workspace = true }
+license     = { workspace = true }
+
+exclude = [
+  # Those files are rust-optimizer artifacts. You might want to commit them for convenience but they should not be part of the source code publication.
+  "contract.wasm",
+  "hash.txt",
+]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+# for more explicit tests, cargo test --features=backtraces
+backtraces = ["cosmwasm-std/backtraces"]
+# use library feature to disable all instantiate/execute/query exports
+library = []
+
+[dependencies]
+cosmwasm-schema     = { workspace = true }
+cosmwasm-std        = { workspace = true }
+cw-storage-plus     = { workspace = true }
+cw-utils            = { workspace = true }
+cw2                 = { workspace = true }
+ethereum-verify      = "3.3.0"
+hex                 = "0.4"
+rust_decimal        = { version = "1.14.3" }
+sha2                = { workspace = true }
+sha3                = "0.10"
+schemars            = { workspace = true }
+serde               = { workspace = true }
+thiserror           = { workspace = true }
+cw-goop             = { version = "0.1.5", features = ["library"] }
+
+[dev-dependencies]
+async-std       = "1.12.0"
+ethers-signers  = "1.0.0"
+ethers-core     = "1.0.0"
+eyre            = "0.6"
+rlp             = "0.5"
+cw-multi-test   = { workspace = true }
+anyhow          = "1.0.57"
