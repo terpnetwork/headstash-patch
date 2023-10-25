@@ -116,7 +116,7 @@ pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
         QueryMsg::Members { start_after, limit } => {
             to_binary(&query_members(deps, start_after, limit)?)
         }
-        QueryMsg::HasMember { member } => to_binary(&query_has_member(deps, member)?),
+        QueryMsg::HasMember { address } => to_binary(&query_has_member(deps, address)?),
         QueryMsg::Member { member } => to_binary(&query_member(deps, member)?),
         QueryMsg::Config {} => to_binary(&query_config(deps, env)?),
         QueryMsg::AdminList {} => to_binary(&query_admin_list(deps)?),
@@ -162,12 +162,8 @@ pub fn query_get_headstash_amount(deps: Deps, address: String) -> StdResult<Head
 }
 
 
-pub fn query_has_member(deps: Deps, member: String) -> StdResult<HasMemberResponse> {
-    let addr = member;
-
-    Ok(HasMemberResponse {
-        has_member: GOOPLIST.has(deps.storage, addr),
-    })
+pub fn query_has_member(deps: Deps, address: String) -> StdResult<bool> {
+    Ok(GOOPLIST.has(deps.storage, address),)
 }
 
 pub fn query_member(deps: Deps, member: String) -> StdResult<Member> {

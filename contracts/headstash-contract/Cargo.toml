@@ -40,7 +40,6 @@ schemars            = { workspace = true }
 serde               = { workspace = true }
 thiserror           = { workspace = true }
 cw-goop             = { workspace = true, features = ["library"] }
-whitelist-immutable = { workspace = true, features = ["library"] }
 
 
 [dev-dependencies]

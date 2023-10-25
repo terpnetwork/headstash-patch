@@ -31,4 +31,12 @@ impl CwGoopContract {
         }))?;
         Ok(get_headstash_amount)
     }
+
+    pub fn includes(&self, querier: &QuerierWrapper, address: String) -> StdResult<bool> {
+        let includes: bool = querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
+            contract_addr: self.addr().into(),
+            msg: to_binary(&QueryMsg::HasMember { address })?,
+        }))?;
+        Ok(includes)
+    }
 }

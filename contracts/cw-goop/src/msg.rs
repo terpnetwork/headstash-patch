@@ -40,8 +40,8 @@ pub enum QueryMsg {
         start_after: Option<String>,
         limit: Option<u32>,
     },
-    #[returns(HasMemberResponse)]
-    HasMember { member: String },
+    #[returns(bool)]
+    HasMember { address: String },
     #[returns(MemberResponse)]
     Member { member: String },
     #[returns(ConfigResponse)]

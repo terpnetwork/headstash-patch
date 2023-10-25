@@ -2,7 +2,7 @@ use crate::{msg::QueryMsg, state::CONFIG};
 use cosmwasm_std::{entry_point, to_binary, Binary};
 use cosmwasm_std::{ Env};
 use cosmwasm_std::{Deps,  StdResult};
-use whitelist_immutable::helpers::WhitelistImmutableContract;
+use cw_goop::helpers::interface::CwGoopContract;
 
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -23,7 +23,7 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
 pub fn query_headstash_is_eligible(deps: Deps, eth_address: String) -> StdResult<bool> {
     let config = CONFIG.load(deps.storage)?;
     match config.cw_goop_address {
-        Some(address) => WhitelistImmutableContract(deps.api.addr_validate(&address)?)
+        Some(address) => CwGoopContract(deps.api.addr_validate(&address)?)
             .includes(&deps.querier, eth_address),
         None => Err(cosmwasm_std::StdError::NotFound {
             kind: "Cw Goop Contract".to_string(),
