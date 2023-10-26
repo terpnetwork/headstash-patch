@@ -1,12 +1,11 @@
 [workspace]
 members = [
-    "contracts/cw-goop",
     "contracts/headstash-contract",
 ]
 resolver = "2"
 
 [workspace.package]
-version    = "0.2.0"
+version    = "0.2.1"
 edition    = "2021"
 homepage   = "https://terp.network"
 repository = "https://github.com/terpnetwork/headstash-patch"
@@ -31,7 +30,6 @@ url                  = "2.2.2"
 sha2                 = { version = "0.10.2", default-features = false }
 ethereum-verify      = "3.3.0"
 headstash-contract   = { version = "0.2.0", path = "contracts/headstash-contract" }
-cw-goop              = { version = "0.2.0", path = "contracts/cw-goop" }
 semver               = "1"
 cw-ownable           = "0.5.1"
 
