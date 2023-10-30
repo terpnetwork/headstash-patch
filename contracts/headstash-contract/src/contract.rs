@@ -2,7 +2,7 @@
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
     attr, to_binary, Addr, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult,
-    Uint128, WasmMsg, Coin , SubMsg, BankMsg, 
+    Uint128,  Coin , SubMsg, BankMsg, 
 };
 use cw2::{get_contract_version, set_contract_version};
 // use cw20_vesting::ExecuteMsg as Cw20ExecuteMsg;
@@ -201,7 +201,7 @@ pub fn execute_claim(
         config.clone(),
     )?;
 
-    let user_input = format!("{}{}", info.sender, amount);
+    let user_input = format!("{}{}", eth_pubkey, amount);
     let hash = sha2::Sha256::digest(user_input.as_bytes())
         .as_slice()
         .try_into()
@@ -273,7 +273,7 @@ pub fn execute_clawback(
     env: Env,
     info: MessageInfo,
     stage: u8,
-    recipient: Option<String>,
+    _recipient: Option<String>,
 ) -> Result<Response, ContractError> {
     // authorize owner
     let cfg = CONFIG.load(deps.storage)?;
@@ -460,7 +460,7 @@ mod validation {
 mod tests {
     use super::*;
     use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
-    use cosmwasm_std::{from_binary, from_slice, CosmosMsg, SubMsg};
+    use cosmwasm_std::{from_binary};
     use serde::Deserialize;
 
     #[test]
@@ -579,16 +579,16 @@ mod tests {
         );
     }
 
-    const TEST_DATA_1: &[u8] = include_bytes!("../testdata/airdrop_stage_1_test_data.json");
-    const TEST_DATA_2: &[u8] = include_bytes!("../testdata/airdrop_stage_2_test_data.json");
+    // const TEST_DATA_1: &[u8] = include_bytes!("../testdata/airdrop_stage_1_test_data.json");
+    // const TEST_DATA_2: &[u8] = include_bytes!("../testdata/airdrop_stage_2_test_data.json");
 
-    #[derive(Deserialize, Debug)]
-    struct Encoded {
-        account: String,
-        amount: Uint128,
-        root: String,
-        proofs: Vec<String>,
-    }
+    // #[derive(Deserialize, Debug)]
+    // struct Encoded {
+    //     account: String,
+    //     amount: Uint128,
+    //     root: String,
+    //     proofs: Vec<String>,
+    // }
 
     // #[test]
     // fn claim() {
@@ -697,23 +697,23 @@ mod tests {
     //     assert_eq!(claimed.claimed, test_data.amount);
     // }
 
-    const TEST_DATA_1_MULTI: &[u8] =
-        include_bytes!("../testdata/airdrop_stage_1_test_multi_data.json");
+    // const TEST_DATA_1_MULTI: &[u8] =
+    //     include_bytes!("../testdata/airdrop_stage_1_test_multi_data.json");
 
-    #[derive(Deserialize, Debug)]
-    struct Proof {
-        account: String,
-        amount: Uint128,
-        proofs: Vec<String>,
-    }
+    // #[derive(Deserialize, Debug)]
+    // struct Proof {
+    //     account: String,
+    //     amount: Uint128,
+    //     proofs: Vec<String>,
+    // }
 
-    #[derive(Deserialize, Debug)]
-    struct MultipleData {
-        total_amount: Uint128,
-        total_claimed_amount: Uint128,
-        root: String,
-        accounts: Vec<Proof>,
-    }
+    // #[derive(Deserialize, Debug)]
+    // struct MultipleData {
+    //     total_amount: Uint128,
+    //     total_claimed_amount: Uint128,
+    //     root: String,
+    //     accounts: Vec<Proof>,
+    // }
 
     // #[test]
     // fn multiple_claim() {
