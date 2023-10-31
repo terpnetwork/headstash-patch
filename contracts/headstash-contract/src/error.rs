@@ -1,5 +1,4 @@
 use cosmwasm_std::{OverflowError, StdError};
-use cw_utils::{Expiration, Scheduled};
 use hex::FromHexError;
 use thiserror::Error;
 
@@ -11,12 +10,8 @@ pub enum ContractError {
     #[error("{0}")]
     Hex(#[from] FromHexError),
 
-
     #[error("Unauthorized")]
     Unauthorized {},
-
-    #[error("Invalid input")]
-    InvalidInput {},
 
     #[error("Already claimed")]
     Claimed {},
@@ -27,21 +22,38 @@ pub enum ContractError {
     #[error("Verification failed")]
     VerificationFailed {},
 
-    #[error("Address {eth_pubkey} is not eligible")]
-    AddressNotEligible { eth_pubkey: String },
-
     #[error("Cannot migrate from different contract type: {previous_contract}")]
     CannotMigrate { previous_contract: String },
 
-    #[error("Airdrop stage {stage} expired at {expiration}")]
-    StageExpired { stage: u8, expiration: Expiration },
+    #[error("Invalid input")]
+    InvalidInput {},
 
-    #[error("Airdrop stage {stage} not expired yet")]
-    StageNotExpired { stage: u8, expiration: Expiration },
+    #[error("Airdrop expired at {expiration}")]
+    Expired { expiration: u64 },
 
-    #[error("Airdrop stage {stage} begins at {start}")]
-    StageNotBegun { stage: u8, start: Scheduled },
+
+    #[error("Address {eth_pubkey} is not eligible")]
+    AddressNotEligible { eth_pubkey: String },
+
+    #[error("withdraw_all is unavailable, it will become available at {available_at}")]
+    WithdrawAllUnavailable { available_at: u64 },
+
+    #[error("Airdrop begins at {start}")]
+    NotBegun { start: u64 },
+
+    #[error("Airdrop is paused")]
+    Paused {},
+
+    #[error("Airdrop is not paused")]
+    NotPaused {},
+
+    #[error("Semver parsing error: {0}")]
+    SemVer(String),
+
+    #[error("Airdrop has not yet expired, it will become available at {available_at}")]
+    ClawBackUnavailable {available_at: u64},
 }
+
 
 impl From<OverflowError> for ContractError {
     fn from(err: OverflowError) -> Self {
