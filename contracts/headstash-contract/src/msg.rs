@@ -10,8 +10,6 @@ pub struct InstantiateMsg {
     pub claim_msg_plaintext: String,
     /// merkle root 
     pub merkle_root: String,
-    /// start time 
-    pub airdrop_start: u64,
     /// total amount 
     pub total_amount: Option<Uint128>,
 }
@@ -56,8 +54,6 @@ pub struct ConfigResponse {
 pub struct MerkleRootResponse {
     /// MerkleRoot is hex-encoded merkle root.
     pub merkle_root: String,
-    pub airdrop_start: u64,
-    pub airdrop_duration: u64,
     pub total_amount: Uint128,
 }
 

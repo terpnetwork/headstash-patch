@@ -15,12 +15,6 @@ pub const CONFIG: Item<Config> = Item::new("config");
 pub const NATIVE_FEE_DENOM: &str = "uterp";
 pub const NATIVE_BOND_DENOM: &str = "uthiol";
 
-pub const AIRDROP_START_KEY: &str = "airdrop_start";
-pub const AIRDROP_START: Item<u64> = Item::new(AIRDROP_START_KEY);
-
-pub const AIRDROP_DURATION_KEY: &str = "vesting_duration_key";
-pub const AIRDROP_DURATION: Item<u64> = Item::new(AIRDROP_DURATION_KEY);
-
 // saves external network airdrop accounts
 pub const ACCOUNT_MAP_KEY: &str = "account_map";
 // external_address -> host_address
