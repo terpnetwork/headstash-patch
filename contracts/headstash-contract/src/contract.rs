@@ -180,13 +180,17 @@ pub fn execute_clawback(
     // get balance
     let balance_to_burn = total_amount.checked_sub(claimed)?;
 
-    // TODO: send to burn module
+    // clawback to community pool
+    let clawback_msg = CosmosMsg::Distribution(DistributionMsg::FundCommunityPool {
+        amount: vec![coin(amount.u128(), NATIVE_BOND_DENOM),
+                     coin(amount.u128(), NATIVE_FEE_DENOM),],
+    });
 
     // Burn the tokens and response
-    let mut res = Response::new().add_attribute("action", "burn");
+    let mut res = Response::new().add_attribute("action", "clawback");
 
     res = res
-        // .add_message(msg)
+        .add_message(msg)
         .add_attributes(vec![
             attr("address", info.sender),
             attr("amount", balance_to_burn),
