@@ -192,7 +192,6 @@ pub fn execute_clawback(
     res = res
         .add_message(msg)
         .add_attributes(vec![
-            attr("address", info.sender),
             attr("amount", balance_to_burn),
         ]);
 
