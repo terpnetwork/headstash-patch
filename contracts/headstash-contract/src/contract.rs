@@ -295,9 +295,7 @@ mod validation {
     use cosmwasm_std::StdError;
     use ethereum_verify::verify_ethereum_text;
 
-    use crate::{
-        state::Config,
-    };
+    use crate::state::Config;
 
     pub fn compute_plaintext_msg(config: &Config, info: MessageInfo) -> String {
         str::replace(
