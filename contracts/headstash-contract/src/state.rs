@@ -12,8 +12,8 @@ pub struct Config {
 }
 pub const CONFIG: Item<Config> = Item::new("config");
 
-pub const NATIVE_FEE_DENOM: &str = "uterp";
-pub const NATIVE_BOND_DENOM: &str = "uthiol";
+pub const NATIVE_FEE_DENOM: &str = "uterpx";
+pub const NATIVE_BOND_DENOM: &str = "uthiolx";
 
 // saves external network airdrop accounts
 pub const ACCOUNT_MAP_KEY: &str = "account_map";
