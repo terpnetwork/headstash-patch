@@ -1,8 +1,8 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    attr, coin,to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
-    Uint128, BankMsg, CosmosMsg,
+    attr, coin,to_json_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
+    Uint128, BankMsg, CosmosMsg, DistributionMsg,
 };
 use cw2::{get_contract_version, set_contract_version};
 use crate::contract::validation::validate_claim;
@@ -180,15 +180,18 @@ pub fn execute_clawback(
     // get balance
     let balance_to_burn = total_amount.checked_sub(claimed)?;
 
-    // TODO: send to burn module
+    // clawback to community pool
+    let clawback_msg = CosmosMsg::Distribution(DistributionMsg::FundCommunityPool {
+        amount: vec![coin(balance_to_burn.u128(), NATIVE_BOND_DENOM),
+                     coin(balance_to_burn.u128(), NATIVE_FEE_DENOM),],
+    });
 
     // Burn the tokens and response
-    let mut res = Response::new().add_attribute("action", "burn");
+    let mut res = Response::new().add_attribute("action", "clawback");
 
     res = res
-        // .add_message(msg)
+        .add_message(clawback_msg)
         .add_attributes(vec![
-            attr("address", info.sender),
             attr("amount", balance_to_burn),
         ]);
 
@@ -232,12 +235,12 @@ pub fn execute_resume(
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
-        QueryMsg::Config {} => to_binary(&query_config(deps)?),
-        QueryMsg::MerkleRoot {} => to_binary(&query_merkle_root(deps)?),
+        QueryMsg::Config {} => to_json_binary(&query_config(deps)?),
+        QueryMsg::MerkleRoot {} => to_json_binary(&query_merkle_root(deps)?),
         QueryMsg::IsClaimed { address } => {
-            to_binary(&query_is_claimed(deps, address)?)
+            to_json_binary(&query_is_claimed(deps, address)?)
         }
-        QueryMsg::TotalClaimed {} => to_binary(&query_total_claimed(deps)?),
+        QueryMsg::TotalClaimed {} => to_json_binary(&query_total_claimed(deps)?),
     }
 }
 
