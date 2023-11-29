@@ -20,7 +20,7 @@ use crate::state::{
 };
 
 // Version info, for migration info
-const CONTRACT_NAME: &str = "crates.io:cw20-vesting-airdrop";
+const CONTRACT_NAME: &str = "crates.io:headstash-contract";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -68,7 +68,7 @@ pub fn execute(
     msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
     match msg {
-        ExecuteMsg::Claim { amount, proof, eth_pubkey, eth_sig } => execute_claim(deps, env, info, eth_pubkey, eth_sig, amount, proof ),
+        ExecuteMsg::Claim { amount, eth_pubkey, eth_sig , proof } => execute_claim(deps, env, info, amount, eth_pubkey, eth_sig, proof ),
         ExecuteMsg::ClawBack { recipient } => {execute_clawback(deps, env, info, Some(recipient))},
         ExecuteMsg::Pause {} => execute_pause(deps, env, info),
         ExecuteMsg::Resume {} => execute_resume(deps,env,info)
@@ -79,9 +79,9 @@ pub fn execute_claim(
     deps: DepsMut,
     _env: Env,
     info: MessageInfo,
+    amount: Uint128,
     eth_pubkey: String,
     eth_sig: String,
-    amount: Uint128,
     proof: Vec<String>,
 ) -> Result<Response, ContractError> {
 

@@ -20,12 +20,12 @@ pub enum ExecuteMsg {
     /// Claim does not check if contract has enough funds, owner must ensure it.
     Claim {
         amount: Uint128,
-        /// Proof is hex-encoded merkle proof.
-        proof: Vec<String>,
         /// pubkey (0x...)
         eth_pubkey: String,
         /// signed by pubkey
         eth_sig: String,
+        /// Proof is hex-encoded merkle proof.
+        proof: Vec<String>,
     },
     /// Recycle the remaining tokens to specified address after expire time (only owner).
     /// Don't use Option<String> to avoid typo turning ClawBack into Burn
