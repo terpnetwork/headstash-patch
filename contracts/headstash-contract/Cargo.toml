@@ -1,7 +1,7 @@
 [package]
 name = "headstash-contract"
 version = { workspace = true }
-authors = ["Cosmorama <cosmorama@proton.me>", "Orkun Kulce <orkunkl@users.noreply.github.com>", "Terraform Labs, PTE."]
+authors = ["A Hardnett <returniflost@skiff.com>"]
 edition = { workspace = true }
 description = "An Airdrop contract for allowing users to claim rewards with Merkle Tree based proof"
 license = { workspace = true }
